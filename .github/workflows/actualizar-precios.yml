@@ -1,0 +1,28 @@
+name: Actualizar precios
+
+on:
+  schedule:
+    - cron: '17 4 * * 1'   # cada lunes a las 5:17 (hora de España en invierno)
+  workflow_dispatch:        # botón para ejecutarlo a mano desde la pestaña Actions
+
+permissions:
+  contents: write
+
+jobs:
+  precios:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Descargar precios nuevos
+        run: node scripts/update_prices.mjs
+      - name: Guardar cambios
+        run: |
+          if git diff --quiet prices.js; then echo "Sin cambios"; exit 0; fi
+          git config user.name "cestafacil-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add prices.js
+          git commit -m "Precios actualizados $(date +%F)"
+          git push

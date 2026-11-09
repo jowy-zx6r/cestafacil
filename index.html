@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CestaFácil">
+<meta name="theme-color" content="#1f8a5b">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CestaFácil – Planificador semanal de menús y compra</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--g:#1f8a5b;--g2:#e7f5ee;--ink:#1b2621;--mut:#6b7a72;--bg:#f6f8f7;--card:#fff;--line:#e3e9e5;--warn:#d9534f;--amb:#f0a020}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Nunito,system-ui,sans-serif;background:#dfe7e2;color:var(--ink);display:flex;justify-content:center;min-height:100vh}
+.phone{width:100%;max-width:430px;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative;padding-top:env(safe-area-inset-top)}
+header{padding:18px 20px 10px;display:flex;align-items:center;gap:10px}
+header .logo{width:36px;height:36px;border-radius:11px;background:var(--g);display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px}
+header h1{font-size:20px;font-weight:800}
+header small{display:block;color:var(--mut);font-size:12px;font-weight:600}
+.steps{display:flex;gap:6px;padding:0 20px 8px}
+.steps i{flex:1;height:5px;border-radius:9px;background:var(--line)}
+.steps i.on{background:var(--g)}
+main{flex:1;padding:10px 20px 110px;overflow-y:auto}
+h2{font-size:24px;font-weight:800;margin:8px 0 4px}
+p.sub{color:var(--mut);margin-bottom:18px;font-size:15px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:16px 12px;text-align:center;cursor:pointer;transition:.15s;font-weight:700}
+.opt .em{font-size:30px;display:block;margin-bottom:6px}
+.opt small{display:block;color:var(--mut);font-weight:600;font-size:12px;margin-top:2px}
+.opt.sel{border-color:var(--g);background:var(--g2)}
+.counter{display:flex;align-items:center;justify-content:center;gap:28px;margin:30px 0}
+.counter button{width:58px;height:58px;border-radius:50%;border:none;background:var(--g);color:#fff;font-size:30px;font-weight:800;cursor:pointer}
+.counter .n{font-size:64px;font-weight:800;min-width:80px;text-align:center}
+.people{display:flex;justify-content:center;gap:4px;font-size:28px;flex-wrap:wrap}
+.budget{background:var(--card);border-radius:22px;padding:26px 20px;text-align:center;border:1px solid var(--line)}
+.budget .val{font-size:54px;font-weight:800;color:var(--g)}
+.budget .pp{color:var(--mut);font-weight:600;margin-top:2px}
+input[type=range]{width:100%;margin:24px 0 6px;-webkit-appearance:none;height:10px;border-radius:9px;background:linear-gradient(90deg,var(--g) var(--p,20%),var(--line) var(--p,20%));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:4px solid var(--g);box-shadow:0 2px 6px #0003;cursor:pointer}
+input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#fff;border:4px solid var(--g);cursor:pointer}
+.rl{display:flex;justify-content:space-between;color:var(--mut);font-size:13px;font-weight:700}
+.tip{margin-top:16px;background:var(--g2);border-radius:14px;padding:12px 14px;font-size:14px;color:#195c40;font-weight:600}
+.foot{position:fixed;bottom:0;width:100%;max-width:430px;padding:14px 20px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%);display:flex;gap:10px}
+.btn{flex:1;padding:16px;border-radius:16px;border:none;font-family:inherit;font-weight:800;font-size:16px;cursor:pointer;background:var(--g);color:#fff}
+.btn.sec{background:#fff;color:var(--ink);border:2px solid var(--line);flex:0 0 auto;padding:16px 20px}
+.btn:disabled{opacity:.4}
+.sumbar{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:14px}
+.sumbar .row{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.meter{height:10px;border-radius:9px;background:var(--line);margin:9px 0 6px;overflow:hidden}
+.meter b{display:block;height:100%;background:var(--g);transition:.3s}
+.meter b.over{background:var(--warn)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
+.chip{flex:0 0 auto;padding:8px 14px;border-radius:30px;background:#fff;border:1px solid var(--line);font-weight:700;font-size:13px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.day{background:var(--card);border-radius:18px;border:1px solid var(--line);padding:12px 14px;margin-bottom:12px}
+.day h3{font-size:16px;font-weight:800;margin-bottom:8px;display:flex;justify-content:space-between}
+.day h3 span{color:var(--mut);font-size:13px;font-weight:700}
+.meal{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px dashed var(--line);cursor:pointer}
+.meal:first-of-type{border-top:none}
+.meal .ic{width:46px;height:46px;border-radius:13px;background:var(--g2);display:grid;place-items:center;font-size:24px;flex-shrink:0}
+.meal .t{flex:1;min-width:0}
+.meal .t small{color:var(--mut);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.meal .t div{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meal .pr{font-weight:800;font-size:14px;color:var(--g)}
+.meal .ed{color:var(--mut);font-size:18px}
+.empty .ic{background:#f1f1f1}
+.sheet-bg{position:fixed;inset:0;background:#0006;display:none;z-index:10;justify-content:center;align-items:flex-end}
+.sheet-bg.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:430px;max-height:82vh;border-radius:24px 24px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));overflow-y:auto}
+.sheet h3{font-size:19px;font-weight:800;margin-bottom:4px}
+.sheet .sub{color:var(--mut);font-size:14px;margin-bottom:12px}
+.rec{display:flex;gap:12px;align-items:center;padding:11px;border-radius:14px;border:2px solid var(--line);margin-bottom:8px;cursor:pointer}
+.rec.sel{border-color:var(--g);background:var(--g2)}
+.rec .ic{font-size:28px}
+.rec .t{flex:1}
+.rec .t b{display:block;font-size:15px}
+.rec .t small{color:var(--mut);font-size:12px;font-weight:600}
+.rec .pr{font-weight:800;color:var(--g)}
+.cat{margin:16px 0 6px;font-size:13px;font-weight:800;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.item{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:7px;cursor:pointer}
+.item .ck{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-size:15px;flex-shrink:0}
+.item.done .ck{background:var(--g);border-color:var(--g)}
+.item.done .nm{text-decoration:line-through;color:var(--mut)}
+.item .nm{flex:1;font-weight:700}
+.item .q{color:var(--mut);font-size:13px;font-weight:700}
+.item .p{font-weight:800;width:58px;text-align:right}
+.tabs{position:fixed;bottom:0;width:100%;max-width:430px;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+.tabs button{flex:1;border:none;background:none;padding:10px 0 12px;font-family:inherit;font-weight:700;font-size:12px;color:var(--mut);cursor:pointer}
+.tabs button span{display:block;font-size:22px}
+.tabs button.on{color:var(--g)}
+.actions{display:flex;gap:8px;margin-bottom:14px}
+.actions button{flex:1;padding:11px;border-radius:13px;border:2px solid var(--line);background:#fff;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer}
+.actions button.pri{background:var(--g);color:#fff;border-color:var(--g)}
+.note{color:var(--mut);font-size:12px;text-align:center;margin-top:14px;line-height:1.4}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:30px;font-weight:700;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:20;white-space:nowrap}
+.toast.on{opacity:1}
+.steps-list li{margin:0 0 6px 18px;font-size:14px}
+.ingr{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}
+.ingr span{background:var(--bg);border-radius:20px;padding:5px 10px;font-size:12px;font-weight:700}
+.set-row{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-weight:700;cursor:pointer}
+.set-row span{color:var(--g)}
+.hback{border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;color:var(--ink)}
+.dayrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px 12px;margin-bottom:8px}
+.dayrow b{font-size:15px}
+.tg{padding:11px 4px;border-radius:12px;border:2px solid var(--line);background:#fff;font-family:inherit;font-weight:800;font-size:13px;color:var(--mut);cursor:pointer}
+.tg.on{border-color:var(--g);background:var(--g2);color:#17704a}
+.meal.out .ic{background:#f1f1f1}.meal.out .t div{color:var(--mut)}
+.meal.out .ed{color:var(--g)}
+.prod{display:block;font-weight:600;font-size:11.5px;color:var(--mut);text-decoration:none;margin-top:2px}
+.bd{font-size:10px;font-weight:800;padding:1px 6px;border-radius:8px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap}
+.bd.real{background:var(--g2);color:#17704a}.bd.estimado{background:#fdf0d9;color:#a46a00}.bd.tuyo{background:#e4ecfb;color:#2a55b0}
+.pr-row{cursor:default}.pin{width:76px;padding:8px;border:2px solid var(--line);border-radius:10px;font-family:inherit;font-weight:800;font-size:15px;text-align:right}
+.pin:focus{border-color:var(--g);outline:none}
+.cmp{display:grid;grid-template-columns:1fr 70px;grid-template-areas:"n v" "b s";gap:3px 10px;padding:8px 6px;border-radius:12px;cursor:pointer}
+.cmp.me{background:var(--g2)}.cmp .cn{grid-area:n;font-weight:800;font-size:14px}.cmp .cv{grid-area:v;text-align:right;font-weight:800}
+.cmp .cb{grid-area:b;height:7px;background:var(--line);border-radius:9px;overflow:hidden;align-self:center}.cmp .cb i{display:block;height:100%;background:var(--g)}
+.cmp small{grid-area:s;text-align:right;color:var(--mut);font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header><button id="hback" class="hback" style="display:none">← Atrás</button><div class="logo">C</div><div><h1>CestaFácil</h1><small id="hdrsub">Tu menú semanal y tu compra, sin líos</small></div></header>
+  <div class="steps" id="steps"></div>
+  <main id="main"></main>
+  <div id="footer"></div>
+</div>
+<div class="sheet-bg" id="sheetBg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="prices.js"></script>
+<script>
+/* ---------- DATOS ---------- */
+const SUPERS=[
+ {id:'mercadona',n:'Mercadona',em:'🟢',t:'Precios reales'},
+ {id:'carrefour',n:'Carrefour',em:'🔷',t:'Precios reales'},
+ {id:'dia',n:'Dia',em:'🔴',t:'Precios reales'},
+ {id:'aldi',n:'Aldi',em:'🟦',t:'Precios reales'},
+ {id:'eroski',n:'Eroski',em:'🟥',t:'Precios reales'},
+ {id:'alcampo',n:'Alcampo',em:'🟩',t:'Parcialmente reales'},
+ {id:'lidl',n:'Lidl',em:'🔵',t:'Sin datos: pon los tuyos'}
+];
+
+
+// precio base por unidad (€/kg, €/L, €/ud)
+const ITEMS={
+ arroz:{n:'Arroz',u:'kg',p:1.3,c:'Despensa'},pasta:{n:'Pasta',u:'kg',p:1.6,c:'Despensa'},
+ lentejas:{n:'Lentejas',u:'kg',p:2.4,c:'Despensa'},garbanzos:{n:'Garbanzos cocidos',u:'kg',p:2.2,c:'Despensa'},
+ tomateTriturado:{n:'Tomate triturado',u:'kg',p:1.4,c:'Despensa'},aceite:{n:'Aceite de oliva',u:'L',p:8.5,c:'Despensa'},
+ harina:{n:'Harina',u:'kg',p:0.9,c:'Despensa'},pan:{n:'Pan',u:'ud',p:0.6,c:'Panadería'},
+ tortillas:{n:'Tortillas de trigo',u:'ud',p:0.25,c:'Panadería'},atun:{n:'Atún en lata',u:'ud',p:1.1,c:'Despensa'},
+ pollo:{n:'Pechuga de pollo',u:'kg',p:6.9,c:'Carne y pescado'},muslos:{n:'Muslos de pollo',u:'kg',p:3.5,c:'Carne y pescado'},
+ picada:{n:'Carne picada',u:'kg',p:6.5,c:'Carne y pescado'},lomo:{n:'Lomo de cerdo',u:'kg',p:6.2,c:'Carne y pescado'},
+ merluza:{n:'Merluza',u:'kg',p:9.5,c:'Carne y pescado'},salmon:{n:'Salmón',u:'kg',p:15,c:'Carne y pescado'},
+ chorizo:{n:'Chorizo',u:'kg',p:9,c:'Carne y pescado'},jamon:{n:'Jamón cocido',u:'kg',p:9,c:'Lácteos y fríos'},
+ huevos:{n:'Huevos',u:'ud',p:0.25,c:'Lácteos y fríos'},queso:{n:'Queso rallado',u:'kg',p:9,c:'Lácteos y fríos'},
+ leche:{n:'Leche',u:'L',p:0.95,c:'Lácteos y fríos'},nata:{n:'Nata para cocinar',u:'L',p:3.2,c:'Lácteos y fríos'},
+ patata:{n:'Patatas',u:'kg',p:1.2,c:'Fruta y verdura'},cebolla:{n:'Cebolla',u:'kg',p:1.3,c:'Fruta y verdura'},
+ tomate:{n:'Tomates',u:'kg',p:2.2,c:'Fruta y verdura'},pimiento:{n:'Pimiento',u:'kg',p:2.6,c:'Fruta y verdura'},
+ calabacin:{n:'Calabacín',u:'kg',p:1.8,c:'Fruta y verdura'},zanahoria:{n:'Zanahoria',u:'kg',p:1.1,c:'Fruta y verdura'},
+ lechuga:{n:'Lechuga',u:'ud',p:0.9,c:'Fruta y verdura'},champi:{n:'Champiñones',u:'kg',p:3.8,c:'Fruta y verdura'},
+ espinacas:{n:'Espinacas',u:'kg',p:3.5,c:'Fruta y verdura'},limon:{n:'Limón',u:'ud',p:0.3,c:'Fruta y verdura'},
+ pepino:{n:'Pepino',u:'kg',p:1.6,c:'Fruta y verdura'},guisantes:{n:'Guisantes congelados',u:'kg',p:2.4,c:'Congelados'},
+ gambas:{n:'Gambas congeladas',u:'kg',p:10,c:'Congelados'},masaPizza:{n:'Masa de pizza',u:'ud',p:1.2,c:'Lácteos y fríos'},
+ mozzarella:{n:'Mozzarella',u:'kg',p:8,c:'Lácteos y fríos'}
+};
+// ingredientes: [item, cantidad por persona]
+const RECIPES=[
+ {id:'lentejas',n:'Lentejas con chorizo',em:'🍲',m:['comida'],min:45,ing:[['lentejas',.09],['chorizo',.03],['patata',.1],['zanahoria',.05],['cebolla',.04]],st:['Sofríe cebolla y zanahoria.','Añade lentejas, patata troceada y chorizo.','Cubre de agua y cuece 35 min.']},
+ {id:'paella',n:'Paella de pollo',em:'🥘',m:['comida'],min:50,ing:[['arroz',.09],['muslos',.15],['pimiento',.05],['guisantes',.03],['tomate',.05],['aceite',.015]],st:['Dora el pollo en la paellera.','Sofríe pimiento y tomate.','Añade arroz y caldo (x2,5). Cuece 18 min.']},
+ {id:'macarrones',n:'Macarrones boloñesa',em:'🍝',m:['comida','cena'],min:25,ing:[['pasta',.1],['picada',.08],['tomateTriturado',.1],['cebolla',.04],['queso',.015]],st:['Cuece la pasta.','Dora cebolla y carne, añade tomate 10 min.','Mezcla y gratina con queso.']},
+ {id:'tortilla',n:'Tortilla de patatas',em:'🍳',m:['cena','comida'],min:35,ing:[['huevos',2],['patata',.18],['cebolla',.04],['aceite',.03]],st:['Fríe patata y cebolla a fuego lento.','Bate los huevos y mezcla.','Cuaja por ambos lados.']},
+ {id:'garbanzos',n:'Garbanzos con espinacas',em:'🥣',m:['comida'],min:20,ing:[['garbanzos',.15],['espinacas',.08],['cebolla',.03],['aceite',.01]],st:['Sofríe cebolla y añade espinacas.','Incorpora los garbanzos y especias.','Cocina 10 min.']},
+ {id:'merluza',n:'Merluza al horno con patatas',em:'🐟',m:['comida','cena'],min:35,ing:[['merluza',.18],['patata',.15],['cebolla',.03],['limon',.25],['aceite',.015]],st:['Hornea patata y cebolla 20 min a 200º.','Coloca la merluza encima con limón.','Hornea 12 min más.']},
+ {id:'pollolimon',n:'Pollo al limón con arroz',em:'🍗',m:['comida','cena'],min:30,ing:[['pollo',.15],['arroz',.07],['limon',.5],['aceite',.01]],st:['Cuece el arroz.','Marca el pollo en sartén.','Añade zumo de limón y reduce.']},
+ {id:'ensaladilla',n:'Ensaladilla rusa',em:'🥗',m:['cena','comida'],min:30,ing:[['patata',.15],['zanahoria',.04],['guisantes',.03],['huevos',1],['atun',.5]],st:['Cuece patata, zanahoria, guisantes y huevo.','Trocea y mezcla con atún.','Añade mayonesa y enfría.']},
+ {id:'cremacalabacin',n:'Crema de calabacín',em:'🥬',m:['cena'],min:25,ing:[['calabacin',.25],['patata',.06],['cebolla',.04],['queso',.01]],st:['Pocha cebolla y calabacín.','Añade patata y agua, cuece 15 min.','Tritura y sirve con queso.']},
+ {id:'tacos',n:'Tacos de pollo',em:'🌮',m:['cena'],min:20,ing:[['tortillas',3],['pollo',.12],['pimiento',.05],['cebolla',.03],['lechuga',.15]],st:['Saltea pollo con pimiento y cebolla.','Calienta las tortillas.','Rellena con lechuga.']},
+ {id:'pizza',n:'Pizza casera',em:'🍕',m:['cena'],min:25,ing:[['masaPizza',.5],['tomateTriturado',.05],['mozzarella',.07],['jamon',.04],['champi',.04]],st:['Extiende la masa y pon tomate.','Añade jamón, champiñones y mozzarella.','Hornea 12 min a 220º.']},
+ {id:'revuelto',n:'Revuelto de champiñones',em:'🍄',m:['cena'],min:15,ing:[['huevos',2],['champi',.12],['pan',.25],['aceite',.01]],st:['Saltea los champiñones.','Añade huevos batidos y remueve.','Sirve con pan.']},
+ {id:'salmon',n:'Salmón a la plancha con verduras',em:'🍣',m:['cena','comida'],min:20,ing:[['salmon',.15],['calabacin',.1],['zanahoria',.05],['limon',.25]],st:['Saltea las verduras.','Haz el salmón a la plancha 3 min por lado.','Sirve con limón.']},
+ {id:'lomo',n:'Lomo con pimientos',em:'🥩',m:['comida','cena'],min:20,ing:[['lomo',.15],['pimiento',.1],['patata',.1],['aceite',.015]],st:['Fríe patatas.','Haz el lomo a la plancha.','Confita los pimientos y sirve.']},
+ {id:'pastagambas',n:'Espaguetis con gambas',em:'🍤',m:['comida','cena'],min:20,ing:[['pasta',.1],['gambas',.07],['nata',.05],['aceite',.01]],st:['Cuece la pasta.','Saltea gambas con ajo.','Añade nata, mezcla con la pasta.']},
+ {id:'gazpacho',n:'Gazpacho y sándwich',em:'🍅',m:['cena'],min:15,ing:[['tomate',.25],['pepino',.05],['pimiento',.03],['pan',.5],['jamon',.04],['aceite',.02]],st:['Tritura tomate, pepino, pimiento y aceite.','Enfría.','Prepara sándwich de jamón.']},
+ {id:'arrozcubana',n:'Arroz a la cubana',em:'🍚',m:['comida','cena'],min:20,ing:[['arroz',.08],['huevos',1],['tomateTriturado',.07],['aceite',.01]],st:['Cuece el arroz.','Fríe el tomate.','Sirve con huevo frito.']},
+ {id:'ensaladaatun',n:'Ensalada completa de atún',em:'🥙',m:['cena'],min:10,ing:[['lechuga',.3],['tomate',.1],['atun',1],['huevos',1],['pepino',.05]],st:['Cuece el huevo.','Trocea verduras.','Monta con atún y aliña.']}
+];
+const DAYS=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+const MEALS=['comida','cena'];
+
+/* ---------- ESTADO ---------- */
+const allHome=()=>DAYS.map(()=>({comida:true,cena:true}));
+let S={v:2,step:0,sup:null,ppl:2,budget:60,plan:null,checked:{},tab:'plan',day:-1,my:{},home:allHome()};
+try{const s=JSON.parse(localStorage.getItem('cestafacil'));if(s)S=Object.assign(S,s)}catch(e){}
+if(!S.my)S.my={};if(!S.home){S.home=allHome();if(S.step>=4)S.step=5;}S.v=2;
+const atHome=(i,m)=>S.home[i][m];const homeCount=()=>S.home.reduce((a,d)=>a+(d.comida?1:0)+(d.cena?1:0),0);if(!SUPERS.find(s=>s.id===S.sup))S.sup=S.sup?'mercadona':null;
+function save(){try{localStorage.setItem('cestafacil',JSON.stringify(S))}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const eur=v=>v.toFixed(2).replace('.',',')+' €';
+const sup=()=>SUPERS.find(s=>s.id===S.sup)||SUPERS[0];
+const R=id=>RECIPES.find(r=>r.id===id);
+// precio de un ingrediente en un súper: tuyo > real > estimado (mediana de los demás súper)
+function median(a){a=a.slice().sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function priceInfo(k,sid=S.sup){
+  const mine=S.my[sid]&&S.my[sid][k];if(mine>0)return{p:mine,src:'tuyo',name:'Precio puesto por ti'};
+  const r=(PRICES[sid]||{})[k];if(r)return{p:r[0],src:'real',name:r[1]};
+  const others=Object.values(PRICES).map(o=>o[k]).filter(Boolean).map(x=>x[0]);
+  return{p:others.length?median(others):ITEMS[k].p,src:'estimado',name:others.length?'Media de otros supermercados':'Precio orientativo'};
+}
+const price=(k,sid)=>priceInfo(k,sid).p;
+function recipeCost(r,ppl=S.ppl,sid=S.sup){return r.ing.reduce((a,[k,q])=>a+price(k,sid)*q*ppl,0)}
+function planCost(sid=S.sup){let t=0;if(!S.plan)return 0;S.plan.forEach(d=>MEALS.forEach(m=>{if(d[m])t+=recipeCost(R(d[m]),S.ppl,sid)}));return t}
+function realShare(sid){const ks=Object.keys(ITEMS);return Math.round(ks.filter(k=>priceInfo(k,sid).src!=='estimado').length/ks.length*100)}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),1800)}
+
+/* ---------- GENERADOR DE MENÚ ---------- */
+function generate(){
+  const target=S.budget;let best=null;
+  for(let tries=0;tries<300;tries++){
+    const plan=DAYS.map(()=>({comida:null,cena:null}));const used={};let cost=0;
+    const slots=[];DAYS.forEach((_,i)=>MEALS.forEach(m=>{if(atHome(i,m))slots.push([i,m])}));
+    for(const [n,[i,m]] of slots.entries()){
+      const remain=slots.length-n;
+      const left=(target-cost)/remain;
+      let pool=RECIPES.filter(r=>r.m.includes(m)&&(used[r.id]||0)<2&&(i===0||(!plan[i-1]||plan[i-1][m]!==r.id)));
+      let cheap=pool.filter(r=>recipeCost(r)<=left*1.15);
+      if(!cheap.length)cheap=pool.sort((a,b)=>recipeCost(a)-recipeCost(b)).slice(0,3);
+      const r=cheap[Math.floor(Math.random()*cheap.length)];
+      plan[i][m]=r.id;used[r.id]=(used[r.id]||0)+1;cost+=recipeCost(r);
+    }
+    const score=cost<=target?target-cost:(cost-target)*4;
+    if(!best||score<best.score)best={plan,score};
+    if(!slots.length)break;
+  }
+  S.plan=best.plan;S.checked={};save();
+}
+
+/* ---------- LISTA DE LA COMPRA ---------- */
+function shopping(){
+  const agg={};
+  S.plan.forEach(d=>MEALS.forEach(m=>{const r=d[m]&&R(d[m]);if(!r)return;
+    r.ing.forEach(([k,q])=>{agg[k]=(agg[k]||0)+q*S.ppl})}));
+  return Object.entries(agg).map(([k,q])=>{const pi=priceInfo(k);return{k,q,...ITEMS[k],cost:pi.p*q,src:pi.src,prod:pi.name}});
+}
+function fmtQ(q,u){if(u==='ud')return Math.ceil(q)+' ud';if(q<1)return Math.round(q*1000)+(u==='L'?' ml':' g');return q.toFixed(1).replace('.',',')+' '+u}
+
+/* ---------- RENDER ---------- */
+function render(){
+  $('steps').innerHTML=S.step<5?[0,1,2,3,4].map(i=>`<i class="${i<=S.step?'on':''}"></i>`).join(''):'';
+  $('hdrsub').textContent=S.step<5?'Tu menú semanal y tu compra, sin líos':`${sup().n} · ${S.ppl} ${S.ppl>1?'personas':'persona'} · ${S.budget} €/semana`;
+  [stepSuper,stepPeople,stepDays,stepBudget,stepReady,appView][Math.min(S.step,5)]();
+  const hb=$('hback');hb.style.display=S.step===5?'block':'none';hb.onclick=()=>{S.step=4;save();render()};
+  $('main').scrollTop=0;
+}
+function footer(back,next,label,dis){
+  $('footer').innerHTML=`<div class="foot">${back?'<button class="btn sec" id="bk">←</button>':''}<button class="btn" id="nx" ${dis?'disabled':''}>${label}</button></div>`;
+  if(back)$('bk').onclick=()=>{S.step--;save();render()};
+  $('nx').onclick=next;
+}
+function stepSuper(){
+  $('main').innerHTML=`<h2>¿Dónde vas a comprar?</h2><p class="sub">Calcularemos los precios según tu supermercado.</p>
+  <div class="grid">${SUPERS.map(s=>`<div class="opt ${S.sup===s.id?'sel':''}" data-id="${s.id}"><span class="em">${s.em}</span>${s.n}<small>${s.t}</small></div>`).join('')}</div>`;
+  document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{S.sup=o.dataset.id;save();render()});
+  footer(false,()=>{S.step=1;save();render()},'Continuar',!S.sup);
+}
+function stepPeople(){
+  $('main').innerHTML=`<h2>¿Para cuántas personas?</h2><p class="sub">Ajustaremos las cantidades de cada receta.</p>
+  <div class="counter"><button id="mn">−</button><div class="n">${S.ppl}</div><button id="pl">+</button></div>
+  <div class="people">${'🧑'.repeat(S.ppl)}</div>`;
+  $('mn').onclick=()=>{if(S.ppl>1){S.ppl--;save();render()}};
+  $('pl').onclick=()=>{if(S.ppl<10){S.ppl++;save();render()}};
+  footer(true,()=>{S.step=2;save();render()},'Continuar');
+}
+function stepDays(){
+  const n=homeCount();
+  $('main').innerHTML=`<h2>¿Qué comes en casa?</h2><p class="sub">Marca las comidas y cenas que harás en casa. Las que no marques no entran en el menú ni en la compra.</p>
+  <div class="actions"><button data-q="all">Todas</button><button data-q="cenas">Solo cenas L-V</button><button data-q="none">Ninguna</button></div>
+  ${DAYS.map((d,i)=>`<div class="dayrow"><b>${d}</b>${MEALS.map(m=>`<button class="tg ${S.home[i][m]?'on':''}" data-i="${i}" data-m="${m}">${m==='comida'?'☀️ Comida':'🌙 Cena'}</button>`).join('')}</div>`).join('')}
+  <p class="note"><b>${n}</b> ${n===1?'comida':'comidas'} en casa esta semana · ${14-n} fuera</p>`;
+  document.querySelectorAll('.tg').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,m=b.dataset.m;S.home[i][m]=!S.home[i][m];save();render()});
+  document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{const q=b.dataset.q;S.home=DAYS.map((_,i)=>({comida:q==='all',cena:q==='all'||(q==='cenas'&&i<5)}));save();render()});
+  footer(true,()=>{S.step=3;save();render()},'Continuar',n===0);
+}
+function stepBudget(){
+  const max=Math.max(300,S.ppl*80);
+  const draw=()=>{const per=S.budget/(S.ppl*Math.max(1,homeCount()));
+    $('bv').textContent=S.budget+' €';$('pp').textContent=`≈ ${eur(per)} por persona y comida`;
+    const r=$('rg');r.style.setProperty('--p',((S.budget-20)/(max-20)*100)+'%');
+    $('tip').textContent=per<1.3?'💡 Presupuesto ajustado: priorizaremos legumbres, huevos y arroz.':per<2.5?'👍 Presupuesto equilibrado: menú variado con carne y pescado.':'✨ Presupuesto holgado: incluiremos salmón, gambas y más variedad.'};
+  $('main').innerHTML=`<h2>¿Cuánto quieres gastar?</h2><p class="sub">Presupuesto para las ${homeCount()} comidas y cenas en casa de la semana.</p>
+  <div class="budget"><div class="val" id="bv"></div><div class="pp" id="pp"></div>
+  <input type="range" id="rg" min="20" max="${max}" step="5" value="${Math.min(S.budget,max)}">
+  <div class="rl"><span>20 €</span><span>${max} €</span></div></div><div class="tip" id="tip"></div>`;
+  $('rg').oninput=e=>{S.budget=+e.target.value;draw();save()};draw();
+  footer(true,()=>{S.step=4;save();render()},'Continuar');
+}
+function stepReady(){
+  const has=!!S.plan;
+  $('main').innerHTML=`<h2>${has?'Tus ajustes':'¡Todo listo!'}</h2><p class="sub">Toca cualquier opción para cambiarla.</p>
+  <div class="set-row" data-s="0">Supermercado <span>${sup().em} ${sup().n} ›</span></div>
+  <div class="set-row" data-s="1">Personas <span>${S.ppl} ›</span></div>
+  <div class="set-row" data-s="2">Comidas en casa <span>${homeCount()} de 14 ›</span></div>
+  <div class="set-row" data-s="3">Presupuesto semanal <span>${S.budget} € ›</span></div>
+  ${has?`<button class="btn sec" id="keep" style="width:100%;margin-top:8px">↩ Volver a mi menú sin cambiarlo</button>`:''}
+  <p class="note">${has?'Si has cambiado algo, pulsa abajo para crear un menú nuevo con estos ajustes.':'Generaremos un menú que se ajuste a tu presupuesto. Después podrás cambiar cualquier comida o cena tocándola.'}</p>`;
+  document.querySelectorAll('.set-row').forEach(e=>e.onclick=()=>{S.step=+e.dataset.s;save();render()});
+  if(has)$('keep').onclick=()=>{S.step=5;save();render()};
+  footer(true,()=>{generate();S.step=5;S.tab='plan';save();render();toast(has?'🔀 Menú nuevo creado':'🎉 Menú semanal creado')},has?'Crear menú nuevo':'Crear mi menú semanal');
+}
+function appView(){
+  if(!S.plan)generate();
+  $('footer').innerHTML=`<nav class="tabs">${[['plan','📅','Menú'],['list','🛒','Compra'],['prices','💶','Precios'],['settings','⚙️','Ajustes']].map(([t,i,l])=>`<button class="${S.tab===t?'on':''}" data-t="${t}"><span>${i}</span>${l}</button>`).join('')}</nav>`;
+  document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;save();render()});
+  ({plan:planView,list:listView,prices:pricesView,settings:settingsView})[S.tab]();
+}
+function budgetBar(){
+  const c=planCost(),pct=Math.min(100,c/S.budget*100),over=c>S.budget;
+  return `<div class="sumbar"><div class="row"><span>Coste estimado</span><span style="color:${over?'var(--warn)':'var(--g)'}">${eur(c)} / ${S.budget} €</span></div>
+  <div class="meter"><b class="${over?'over':''}" style="width:${pct}%"></b></div>
+  <div class="row" style="font-weight:600;color:var(--mut);font-size:13px"><span>${over?'⚠️ Te pasas '+eur(c-S.budget):'✅ Te sobran '+eur(S.budget-c)}</span><span>${sup().n}</span></div></div>`;
+}
+function planView(){
+  const days=S.day<0?DAYS.map((_,i)=>i):[S.day];
+  $('main').innerHTML=budgetBar()+`<div class="actions"><button class="pri" id="regen">🔀 Generar otro menú</button><button id="golist">🛒 Ver compra</button></div>
+  <div class="chips"><div class="chip ${S.day<0?'on':''}" data-d="-1">Toda la semana</div>${DAYS.map((d,i)=>`<div class="chip ${S.day===i?'on':''}" data-d="${i}">${d.slice(0,3)}</div>`).join('')}</div>`+
+  days.map(i=>{const d=S.plan[i];const dc=MEALS.reduce((a,m)=>a+(d[m]?recipeCost(R(d[m])):0),0);
+    return `<div class="day"><h3>${DAYS[i]}<span>${eur(dc)}</span></h3>${MEALS.map(m=>{const r=d[m]&&R(d[m]);
+      if(!atHome(i,m))return `<div class="meal out" data-i="${i}" data-m="${m}"><div class="ic">🍽️</div><div class="t"><small>${m==='comida'?'☀️ Comida':'🌙 Cena'}</small><div>Fuera de casa</div></div><div class="ed" style="font-size:13px;font-weight:800">+ en casa</div></div>`;
+      return r?`<div class="meal" data-i="${i}" data-m="${m}"><div class="ic">${r.em}</div><div class="t"><small>${m==='comida'?'☀️ Comida':'🌙 Cena'} · ${r.min} min</small><div>${r.n}</div></div><div class="pr">${eur(recipeCost(r))}</div><div class="ed">›</div></div>`
+      :`<div class="meal empty" data-i="${i}" data-m="${m}"><div class="ic">➕</div><div class="t"><small>${m==='comida'?'☀️ Comida':'🌙 Cena'}</small><div style="color:var(--mut)">Elegir receta</div></div></div>`}).join('')}</div>`}).join('');
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{S.day=+c.dataset.d;save();render()});
+  document.querySelectorAll('.meal').forEach(e=>e.onclick=()=>{const i=+e.dataset.i,m=e.dataset.m;if(!atHome(i,m)){S.home[i][m]=true;save()}openPicker(i,m)});
+  $('regen').onclick=()=>{generate();render();toast('🔀 Nuevo menú generado')};
+  $('golist').onclick=()=>{S.tab='list';save();render()};
+}
+function openPicker(i,m){
+  const cur=S.plan[i][m];const r=cur&&R(cur);
+  const list=RECIPES.filter(x=>x.m.includes(m)).sort((a,b)=>recipeCost(a)-recipeCost(b));
+  $('sheet').innerHTML=`<h3>${DAYS[i]} · ${m==='comida'?'Comida':'Cena'}</h3>
+  ${r?`<p class="sub">Ahora: <b>${r.em} ${r.n}</b> para ${S.ppl}</p><div class="ingr">${r.ing.map(([k,q])=>`<span>${ITEMS[k].n} · ${fmtQ(q*S.ppl,ITEMS[k].u)}</span>`).join('')}</div>
+  <ol class="steps-list">${r.st.map(s=>`<li>${s}</li>`).join('')}</ol><div class="cat">Cambiar por</div>`:'<p class="sub">Elige una receta</p>'}
+  ${list.map(x=>`<div class="rec ${x.id===cur?'sel':''}" data-id="${x.id}"><div class="ic">${x.em}</div><div class="t"><b>${x.n}</b><small>⏱ ${x.min} min · ${eur(recipeCost(x)/S.ppl)}/persona</small></div><div class="pr">${eur(recipeCost(x))}</div></div>`).join('')}
+  <button class="btn sec" id="clr" style="width:100%;margin-top:8px">🍽️ Como fuera de casa</button>`;
+  $('sheetBg').classList.add('on');
+  document.querySelectorAll('.rec').forEach(e=>e.onclick=()=>{S.plan[i][m]=e.dataset.id;save();closeSheet();render();toast('✅ '+R(e.dataset.id).n)});
+  $('clr').onclick=()=>{S.plan[i][m]=null;S.home[i][m]=false;save();closeSheet();render();toast('🍽️ '+DAYS[i]+' '+m+': fuera de casa')};
+}
+function closeSheet(){$('sheetBg').classList.remove('on')}
+$('sheetBg').onclick=e=>{if(e.target.id==='sheetBg'){closeSheet();render()}};
+function listView(){
+  const items=shopping();const cats={};items.forEach(it=>(cats[it.c]=cats[it.c]||[]).push(it));
+  const total=items.reduce((a,b)=>a+b.cost,0),done=items.filter(i=>S.checked[i.k]).length;
+  const order=['Fruta y verdura','Carne y pescado','Lácteos y fríos','Panadería','Despensa','Congelados'];
+  $('main').innerHTML=budgetBar()+`<div class="actions"><button id="cp">📋 Copiar lista</button><button id="rs">↺ Desmarcar</button></div>
+  <p class="sub" style="margin-bottom:4px">${done} de ${items.length} productos en el carro · total ${eur(total)}</p>`+
+  order.filter(c=>cats[c]).map(c=>`<div class="cat">${c}</div>`+cats[c].sort((a,b)=>a.n.localeCompare(b.n)).map(it=>
+    `<div class="item ${S.checked[it.k]?'done':''}" data-k="${it.k}"><div class="ck">✓</div><div class="nm">${it.n}<small class="prod">${it.prod} <b class="bd ${it.src}">${it.src}</b></small></div><div class="q">${fmtQ(it.q,it.u)}</div><div class="p">${eur(it.cost)}</div></div>`).join('')).join('')+
+  `<p class="note">Precios de ${sup().n} consultados el ${PRICE_DATE}, calculados por la cantidad que usan las recetas. El ticket puede variar por tamaño de envase y ofertas. Corrige cualquier precio en la pestaña 💶 Precios.</p>`;
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>{S.checked[e.dataset.k]=!S.checked[e.dataset.k];save();render()});
+  $('rs').onclick=()=>{S.checked={};save();render()};
+  $('cp').onclick=async()=>{const txt=`Lista de la compra (${sup().n}, ${S.ppl} pers.)\n`+order.filter(c=>cats[c]).map(c=>`\n${c.toUpperCase()}\n`+cats[c].map(i=>`- ${i.n}: ${fmtQ(i.q,i.u)}`).join('\n')).join('\n');
+    try{await navigator.clipboard.writeText(txt);toast('📋 Lista copiada')}catch(e){toast('No se pudo copiar')}};
+}
+function pricesView(){
+  const cmp=SUPERS.map(s=>({s,c:planCost(s.id),r:realShare(s.id)})).sort((a,b)=>a.c-b.c);
+  const min=cmp[0].c,max=cmp[cmp.length-1].c;
+  const cats={};Object.entries(ITEMS).forEach(([k,it])=>(cats[it.c]=cats[it.c]||[]).push(k));
+  const order=['Fruta y verdura','Carne y pescado','Lácteos y fríos','Panadería','Despensa','Congelados'];
+  $('main').innerHTML=`<h2>Precios</h2><p class="sub">Tu menú de esta semana en cada supermercado (precios del ${PRICE_DATE}).</p>
+  <div class="sumbar">${cmp.map(x=>`<div class="cmp ${x.s.id===S.sup?'me':''}" data-s="${x.s.id}"><span class="cn">${x.s.em} ${x.s.n}${x.c===min?' <b class="bd real">más barato</b>':''}</span>
+   <span class="cb"><i style="width:${Math.max(8,(x.c/max)*100)}%"></i></span><span class="cv">${eur(x.c)}</span><small>${x.r}% reales</small></div>`).join('')}
+   <p class="note" style="margin-top:8px">Toca un supermercado para cambiarte a él.</p></div>
+  <h3 style="margin:18px 0 2px">Precios en ${sup().em} ${sup().n}</h3>
+  <p class="sub" style="font-size:13px">Toca un precio para corregirlo con el de tu ticket. <b class="bd real">real</b> = de la web del súper · <b class="bd estimado">estimado</b> = sin dato, media de otros · <b class="bd tuyo">tuyo</b> = puesto por ti</p>`+
+  order.filter(c=>cats[c]).map(c=>`<div class="cat">${c}</div>`+cats[c].map(k=>{const pi=priceInfo(k),it=ITEMS[k];
+    return `<div class="item pr-row"><div class="nm">${it.n}<small class="prod">${pi.name} <b class="bd ${pi.src}">${pi.src}</b></small></div>
+    <input class="pin" type="number" inputmode="decimal" step="0.01" min="0" data-k="${k}" value="${pi.p.toFixed(2)}"><span class="q">€/${it.u}</span></div>`}).join('')).join('')+
+  `<button class="btn sec" id="clrmine" style="width:100%;margin-top:14px">Borrar mis precios de ${sup().n}</button>
+  <p class="note">Fuente: comparador Findit (finditapp.es), actualizado automáticamente cada lunes. Lidl no publica precios online: pon los tuyos.</p>`;
+  document.querySelectorAll('.cmp').forEach(e=>e.onclick=()=>{S.sup=e.dataset.s;save();render();toast(sup().em+' Ahora compras en '+sup().n)});
+  document.querySelectorAll('.pin').forEach(e=>e.onchange=()=>{const v=parseFloat(String(e.value).replace(',','.'));(S.my[S.sup]=S.my[S.sup]||{});
+    if(v>0)S.my[S.sup][e.dataset.k]=v;else delete S.my[S.sup][e.dataset.k];save();render();toast('💾 Precio guardado')});
+  $('clrmine').onclick=()=>{S.my[S.sup]={};save();render();toast('Precios restablecidos')};
+}
+function settingsView(){
+  $('main').innerHTML=`<h2>Ajustes</h2><p class="sub">Cambia tus preferencias cuando quieras.</p>
+  <div class="set-row" data-s="0">Supermercado <span>${sup().em} ${sup().n} ›</span></div>
+  <div class="set-row" data-s="1">Personas <span>${S.ppl} ›</span></div>
+  <div class="set-row" data-s="2">Comidas en casa <span>${homeCount()} de 14 ›</span></div>
+  <div class="set-row" data-s="3">Presupuesto semanal <span>${S.budget} € ›</span></div>
+  <button class="btn" id="re" style="width:100%;margin-top:10px">🔀 Regenerar menú con estos ajustes</button>
+  <button class="btn sec" id="rst" style="width:100%;margin-top:10px">Empezar de cero</button>`;
+  document.querySelectorAll('.set-row').forEach(e=>e.onclick=()=>{S.step=+e.dataset.s;save();render()});
+  $('re').onclick=()=>{generate();S.tab='plan';save();render();toast('🔀 Menú actualizado')};
+  $('rst').onclick=()=>{S={v:2,step:0,sup:null,ppl:2,budget:60,plan:null,checked:{},tab:'plan',day:-1,my:{},home:allHome()};save();render()};
+}
+render();
+</script>
+</body>
+</html>
