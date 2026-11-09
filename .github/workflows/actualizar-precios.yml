@@ -1,8 +1,9 @@
 name: Actualizar precios
 
 on:
-  schedule:
-    - cron: '17 4 * * 1'   # cada lunes a las 5:17 (hora de España en invierno)
+  # schedule desactivado: Findit bloquea (HTTP 403) las peticiones desde los servidores de GitHub
+  # schedule:
+  #   - cron: '17 4 * * 1'
   workflow_dispatch:        # botón para ejecutarlo a mano desde la pestaña Actions
 
 permissions:
