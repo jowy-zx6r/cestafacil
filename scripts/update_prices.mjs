@@ -79,17 +79,19 @@ export function normalize(key, row) {
   return row.unit === 'kg' || row.unit === 'l' ? row.ppu : null;
 }
 
+const STATS = { ok: 0, err: 0 };
 async function fetchPage(sup, slug) {
   for (let t = 0; t < 3; t++) {
     try {
       const r = await fetch(`https://finditapp.es/supermercado/${sup}/${slug}`, {
         headers: { 'User-Agent': 'CestaFacil-precios/1.0 (actualizacion semanal)', 'Accept-Language': 'es-ES' },
-        signal: AbortSignal.timeout(20000),
+        signal: AbortSignal.timeout(15000),
       });
       if (r.status === 404) return '';
       if (!r.ok) throw new Error('HTTP ' + r.status);
+      STATS.ok++;
       return await r.text();
-    } catch (e) { await sleep(3000 * (t + 1)); }
+    } catch (e) { console.log(`  ${sup}/${slug}: intento ${t + 1} falló (${e.message})`); STATS.err++; if (STATS.ok === 0 && STATS.err >= 6) { console.error('Findit no responde desde este servidor. Se cancela sin tocar los precios.'); process.exit(1); } await sleep(3000 * (t + 1)); }
   }
   return null; // fallo de red: se mantienen los precios anteriores
 }
@@ -106,6 +108,7 @@ async function main() {
   const cand = {}; // cand[sup][key] = [{p,name}]
   let fetched = 0, failed = 0;
   for (const sup of SUPERS) {
+    console.log(`Leyendo ${sup}...`);
     cand[sup] = {};
     for (const [key, [slug, re]] of Object.entries(Q)) {
       const html = await fetchPage(sup, slug);
